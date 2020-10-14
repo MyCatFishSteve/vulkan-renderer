@@ -20,12 +20,21 @@ if(INEXOR_BUILD_TESTS)
 else()
     set(tests_option False)
 endif()
+
+if(${GENERATOR_IS_MULTI_CONFIG})
+    set(generators cmake cmake_multi)
+else()
+    set(generators cmake)
+endif()
+
 conan_cmake_run(
     CONANFILE conanfile.py
     BASIC_SETUP
     BUILD outdated
     PROFILE ${INEXOR_CONAN_PROFILE}
     PROFILE_AUTO build_type
+    GENERATORS ${generators}
+    CONFIGURATION_TYPES ${CMAKE_CONFIGURATION_TYPES}
     KEEP_RPATHS
     OPTIONS build_benchmarks=${benchmark_option}
             build_tests=${tests_option}
