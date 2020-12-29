@@ -1,0 +1,61 @@
+name: Documentation
+on: [push, pull_request]
+
+jobs:
+  linux:
+    name: ${{ matrix.config.name }}
+    runs-on: ubuntu-latest
+    container: ubuntu:20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - {
+            name: "Ubuntu",
+            artifact: "documentation.tar.xz",
+          }
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Update environment
+        shell: bash
+        run: |
+          # Update package lists
+          apt update -qq
+          # Install build tools
+          apt install -y \
+            cmake \
+            doxygen \
+            python3 \
+            python3-pip
+
+          pip3 install wheel setuptools
+          pip3 install --upgrade -r ./documentation/requirements.txt
+
+      - name: Configure CMake
+        shell: bash
+        run: |
+          cmake . \
+            -Bbuild \
+            doc
+
+      - name: Build
+        shell: bash
+        run: |
+          cmake --build build
+
+      - name: Link Check
+        shell: bash
+        run: |
+          sphinx-build -j auto -T -E -a -b linkcheck "documentation/source" "linkcheck"
+
+      - name: Prepare upload
+        run: |
+          tar cfz ${{ matrix.config.artifact }} build
+
+      - name: Upload
+        uses: actions/upload-artifact@v1
+        with:
+          path: ${{ matrix.config.artifact }}
+          name: ${{ matrix.config.artifact }}
