@@ -50,7 +50,7 @@ jobs:
       - name: Link Check
         shell: bash
         run: |
-          sphinx-build -j auto -T -E -a -b linkcheck "documentation/source" "linkcheck"
+          sphinx-build -j auto -T -E -a -q -b linkcheck "documentation/source" "linkcheck"
 
       - name: Prepare upload
         run: |
