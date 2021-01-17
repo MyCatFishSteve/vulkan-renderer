@@ -37,7 +37,7 @@ class Cube : public std::enable_shared_from_this<Cube> {
     friend std::shared_ptr<world::Cube> io::deserialize_octree_impl(const io::ByteStream &stream);
 
 public:
-    /// Maximum of sub cubes (childs)
+    /// Maximum of sub cubes (childs).
     static constexpr std::size_t SUB_CUBES = 8;
     /// Cube edges.
     static constexpr std::size_t EDGES = 12;
@@ -61,7 +61,7 @@ public:
 private:
     Type m_type{Type::SOLID};
     float m_size{32};
-    glm::vec3 m_position{0.0F, 0.0F, 0.0F};
+    glm::vec3 m_position{0.0f, 0.0f, 0.0f};
 
     /// Root cube points to itself.
     std::weak_ptr<Cube> m_parent{weak_from_this()};
@@ -107,6 +107,18 @@ public:
     [[nodiscard]] std::size_t grid_level() const noexcept;
     /// Count the number of Type::SOLID and Type::NORMAL cubes.
     [[nodiscard]] std::size_t count_geometry_cubes() const noexcept;
+
+    [[nodiscard]] glm::vec3 center() const {
+        return m_position + 0.5f * m_size;
+    }
+
+    [[nodiscard]] const glm::vec3 &position() const {
+        return m_position;
+    }
+
+    [[nodiscard]] float size() const {
+        return m_size;
+    }
 
     /// Set a new type.
     void set_type(Type new_type);

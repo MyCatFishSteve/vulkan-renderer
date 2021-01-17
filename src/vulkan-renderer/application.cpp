@@ -4,6 +4,7 @@
 #include "inexor/vulkan-renderer/octree_gpu_vertex.hpp"
 #include "inexor/vulkan-renderer/standard_ubo.hpp"
 #include "inexor/vulkan-renderer/tools/cla_parser.hpp"
+#include "inexor/vulkan-renderer/world/collision.hpp"
 #include "inexor/vulkan-renderer/world/cube.hpp"
 #include "inexor/vulkan-renderer/wrapper/cpu_texture.hpp"
 #include "inexor/vulkan-renderer/wrapper/descriptor_builder.hpp"
@@ -194,15 +195,14 @@ void Application::load_shaders() {
 void Application::load_octree_geometry() {
     spdlog::debug("Creating octree geometry.");
 
-    std::shared_ptr<world::Cube> cube =
-        std::make_shared<world::Cube>(world::Cube::Type::OCTANT, 2.0f, glm::vec3{0, -1, -1});
+    m_world = std::make_shared<world::Cube>(world::Cube::Type::OCTANT, 2.0f, glm::vec3{0, -1, -1});
 
-    cube->childs()[3]->set_type(world::Cube::Type::EMPTY);
-    cube->childs()[5]->set_type(world::Cube::Type::EMPTY);
-    cube->childs()[6]->set_type(world::Cube::Type::EMPTY);
-    cube->childs()[7]->set_type(world::Cube::Type::EMPTY);
+    m_world->childs()[3]->set_type(world::Cube::Type::EMPTY);
+    m_world->childs()[5]->set_type(world::Cube::Type::EMPTY);
+    m_world->childs()[6]->set_type(world::Cube::Type::EMPTY);
+    m_world->childs()[7]->set_type(world::Cube::Type::EMPTY);
 
-    for (const auto &polygons : cube->polygons(true)) {
+    for (const auto &polygons : m_world->polygons(true)) {
         for (const auto &triangle : *polygons) {
             for (const auto &vertex : triangle) {
                 glm::vec3 color = {
@@ -575,6 +575,8 @@ void Application::process_mouse_input() {
 void Application::run() {
     spdlog::debug("Running Application.");
 
+    world::OctreeCollision collision_test(m_world);
+
     while (!m_window->should_close()) {
         m_window->poll();
         update_uniform_buffers();
@@ -583,6 +585,7 @@ void Application::run() {
         process_mouse_input();
         m_camera->update(m_time_passed);
         m_time_passed = m_stopwatch.time_step();
+        collision_test.check_for_collision(m_camera->position(), m_camera->front());
     }
 }
 
