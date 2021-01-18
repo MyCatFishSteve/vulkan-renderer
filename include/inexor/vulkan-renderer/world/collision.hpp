@@ -4,6 +4,7 @@
 
 #include <glm/vec3.hpp>
 
+#include <array>
 #include <memory>
 #include <optional>
 
@@ -25,6 +26,13 @@ private:
     /// @param direction The direction vector of the ray.
     /// @return ``True`` if the ray collides with the octree cube's bounding sphere.
     [[nodiscard]] bool ray_collides_with_octree(glm::vec3 position, glm::vec3 direction) const;
+
+    /// @brief ``True`` of tje ray build from the two vectors collides with the cube's bounding box.
+    /// @param position The start position vector of the ray.
+    /// @param direction The direction vector of the ray.
+    /// @return ``True`` if the ray collides with the octree cube's bounding box.
+    [[nodiscard]] bool ray_collides_with_box(std::array<glm::vec3, 2> box_bounds, glm::vec3 position,
+                                             glm::vec3 direction) const;
 
 public:
     /// @brief Default constructor.

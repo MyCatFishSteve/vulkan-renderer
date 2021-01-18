@@ -116,6 +116,10 @@ public:
         return m_position;
     }
 
+    [[nodiscard]] std::array<glm::vec3, 2> bounding_box() const {
+        return {m_position, {m_position.x + m_size, m_position.y + m_size, m_position.z + m_size}};
+    }
+
     [[nodiscard]] float size() const {
         return m_size;
     }
