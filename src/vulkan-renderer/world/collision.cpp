@@ -10,18 +10,17 @@ namespace inexor::vulkan_renderer::world {
 
 CollisionData::CollisionData(std::shared_ptr<Cube> cube) : m_cube(cube) {}
 
-OctreeCollision::OctreeCollision(std::shared_ptr<Cube> world) : m_world(world) {}
+OctreeCollision::OctreeCollision(std::shared_ptr<Cube> cube) : m_cube(cube) {}
 
-bool OctreeCollision::ray_collides_with_octree(const glm::vec3 position, const glm::vec3 direction) const {
-    const auto cube = m_world.lock();
+bool OctreeCollision::ray_sphere_collision(const glm::vec3 position, const glm::vec3 direction) const {
     auto distance = 0.0f;
     const auto result =
-        glm::intersectRaySphere(position, direction, cube->center(), std::pow(cube->size() / 2, 2), distance);
+        glm::intersectRaySphere(position, direction, m_cube->center(), std::pow(m_cube->size() / 2, 2), distance);
     return result;
 }
 
-bool OctreeCollision::ray_collides_with_box(const std::array<glm::vec3, 2> box_bounds, const glm::vec3 position,
-                                            const glm::vec3 direction) const {
+bool OctreeCollision::ray_box_collision(const std::array<glm::vec3, 2> box_bounds, const glm::vec3 position,
+                                        const glm::vec3 direction) const {
     glm::vec3 inverse_dir{1 / direction.x, 1 / direction.y, 1 / direction.z};
     std::int32_t sign[3]{0, 0, 0};
 
@@ -64,19 +63,25 @@ bool OctreeCollision::ray_collides_with_box(const std::array<glm::vec3, 2> box_b
 
 std::optional<CollisionData> OctreeCollision::check_for_collision(const glm::vec3 position,
                                                                   const glm::vec3 direction) const {
-    const auto cube = m_world.lock();
-
-    if (cube->type() == Cube::Type::EMPTY) {
+    /// If the cube is empty, a collision with a ray is not possible,
+    /// and there are no sub cubes to check for collision either.
+    if (m_cube->type() == Cube::Type::EMPTY) {
         return std::nullopt;
     }
 
-    // First, check if ray collides with bounding sphere.
-    if (!ray_collides_with_octree(position, direction)) {
-        return std::nullopt;
-    } else {
-        if (ray_collides_with_box(cube->bounding_box(), position, direction)) {
-            if (!cube->is_leaf()) {
-                const auto &subcubes = cube->childs();
+    /// First, check if ray collides with bounding sphere.
+    /// This is much easier to calculate than collision with a bounding box.
+    if (ray_sphere_collision(position, direction)) {
+        /// Second, check if ray collides with bounding box.
+        if (ray_box_collision(m_cube->bounding_box(), position, direction)) {
+            if (m_cube->is_leaf()) {
+                /// This is a leaf node, a collision has been found.
+                /// TODO: Check which face is selected.
+                /// TODO: Check which edge is selected.
+                return std::make_optional<CollisionData>(m_cube);
+            } else {
+                /// Iterate through all sub cubes and check for collision.
+                const auto &subcubes = m_cube->childs();
                 for (std::int32_t i = 0; i < 8; i++) {
                     if (subcubes[i]->type() != Cube::Type::EMPTY) {
                         OctreeCollision subcollision(subcubes[i]);
@@ -86,13 +91,7 @@ std::optional<CollisionData> OctreeCollision::check_for_collision(const glm::vec
                     }
                 }
             }
-            return std::make_optional<CollisionData>(cube);
-        } else {
-            spdlog::trace("Camera ray collides with bounding sphere!");
         }
-
-        // TODO: Check for octree collision!
-        // TODO: For a simple approach, just check for collision with all 8 sub cubes.
     }
 
     return std::nullopt;

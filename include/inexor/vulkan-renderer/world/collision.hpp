@@ -13,8 +13,9 @@ namespace inexor::vulkan_renderer::world {
 class CollisionData {
 private:
     // The cube which collides with the camera ray.
-    std::weak_ptr<Cube> m_cube;
+    std::shared_ptr<Cube> m_cube;
     // TODO: Add info about which face and which edge.
+
 public:
     CollisionData(std::shared_ptr<Cube> cube);
     CollisionData(const CollisionData &) = delete;
@@ -28,20 +29,20 @@ public:
 class OctreeCollision {
 private:
     // TODO: Maybe change this to a const reference?
-    const std::weak_ptr<world::Cube> m_world;
+    const std::shared_ptr<world::Cube> m_cube;
 
     /// @brief ``True`` if the ray build from the two vectors collides with the cube's bounding sphere.
     /// @param position The start position vector of the ray.
     /// @param direction The direction vector of the ray.
     /// @return ``True`` if the ray collides with the octree cube's bounding sphere.
-    [[nodiscard]] bool ray_collides_with_octree(glm::vec3 position, glm::vec3 direction) const;
+    [[nodiscard]] bool ray_sphere_collision(glm::vec3 position, glm::vec3 direction) const;
 
     /// @brief ``True`` of tje ray build from the two vectors collides with the cube's bounding box.
     /// @param position The start position vector of the ray.
     /// @param direction The direction vector of the ray.
     /// @return ``True`` if the ray collides with the octree cube's bounding box.
-    [[nodiscard]] bool ray_collides_with_box(std::array<glm::vec3, 2> box_bounds, glm::vec3 position,
-                                             glm::vec3 direction) const;
+    [[nodiscard]] bool ray_box_collision(std::array<glm::vec3, 2> box_bounds, glm::vec3 position,
+                                         glm::vec3 direction) const;
 
 public:
     /// @brief Default constructor.
@@ -54,7 +55,7 @@ public:
     OctreeCollision &operator=(const OctreeCollision &) = delete;
     OctreeCollision &operator=(OctreeCollision &&) = delete;
 
-    /// @brief
+    /// @brief Checks for a collision between a camera ray and octree geometry.
     /// @param position The camera's position.
     /// @param direction The camera's view direction.
     /// @return
