@@ -102,6 +102,8 @@ public:
 
     /// Is the current cube root.
     [[nodiscard]] bool is_root() const noexcept;
+    /// Is the current cube a leaf.
+    [[nodiscard]] bool is_leaf() const noexcept;
     /// At which child level this cube is.
     /// root cube = 0
     [[nodiscard]] std::size_t grid_level() const noexcept;
@@ -130,7 +132,7 @@ public:
     [[nodiscard]] Type type() const noexcept;
 
     /// Get childs.
-    [[nodiscard]] const std::array<std::shared_ptr<Cube>, Cube::SUB_CUBES> &childs() const;
+    [[nodiscard]] const std::array<std::shared_ptr<Cube>, Cube::SUB_CUBES> &childs() const noexcept;
     /// Get indentations.
     [[nodiscard]] std::array<Indentation, Cube::EDGES> indentations() const noexcept;
 

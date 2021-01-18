@@ -10,9 +10,18 @@
 
 namespace inexor::vulkan_renderer::world {
 
-struct CollisionData {
+class CollisionData {
+private:
     // The cube which collides with the camera ray.
-    std::weak_ptr<Cube> cube;
+    std::weak_ptr<Cube> m_cube;
+    // TODO: Add info about which face and which edge.
+public:
+    CollisionData(std::shared_ptr<Cube> cube);
+    CollisionData(const CollisionData &) = delete;
+    CollisionData(CollisionData &&) = delete;
+
+    CollisionData &operator=(const CollisionData &) = delete;
+    CollisionData &operator=(CollisionData &&) = delete;
 };
 
 // TODO: Implement collision with multiple octree worlds.

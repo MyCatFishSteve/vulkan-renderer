@@ -8,6 +8,8 @@
 
 namespace inexor::vulkan_renderer::world {
 
+CollisionData::CollisionData(std::shared_ptr<Cube> cube) : m_cube(cube) {}
+
 OctreeCollision::OctreeCollision(std::shared_ptr<Cube> world) : m_world(world) {}
 
 bool OctreeCollision::ray_collides_with_octree(const glm::vec3 position, const glm::vec3 direction) const {
@@ -64,7 +66,7 @@ std::optional<CollisionData> OctreeCollision::check_for_collision(const glm::vec
                                                                   const glm::vec3 direction) const {
     const auto cube = m_world.lock();
 
-    if (cube->type() == world::Cube::Type::EMPTY) {
+    if (cube->type() == Cube::Type::EMPTY) {
         return std::nullopt;
     }
 
@@ -73,7 +75,18 @@ std::optional<CollisionData> OctreeCollision::check_for_collision(const glm::vec
         return std::nullopt;
     } else {
         if (ray_collides_with_box(cube->bounding_box(), position, direction)) {
-            spdlog::trace("Camera ray collides with bounding box!");
+            if (!cube->is_leaf()) {
+                const auto &subcubes = cube->childs();
+                for (std::int32_t i = 0; i < 8; i++) {
+                    if (subcubes[i]->type() != Cube::Type::EMPTY) {
+                        OctreeCollision subcollision(subcubes[i]);
+                        if (subcollision.check_for_collision(position, direction)) {
+                            spdlog::debug("Collided with subcube no {}.", i);
+                        }
+                    }
+                }
+            }
+            return std::make_optional<CollisionData>(cube);
         } else {
             spdlog::trace("Camera ray collides with bounding sphere!");
         }
