@@ -38,8 +38,8 @@ private:
     // This serves as a replacement for std::vector.clear();
     void clear_hits();
 
-    /// @brief Adds an octree collision.
-    /// @param cube The cube.
+    /// @brief Adds an octree collision to the collision list.
+    /// @param collision The octree ray collision.
     void add_hit(CollisionData collision);
 
     /// @brief Sort octree collision hits by distance from position's point.
@@ -52,7 +52,8 @@ private:
     /// @return ``True`` if the ray collides with the octree cube's bounding sphere.
     [[nodiscard]] bool ray_sphere_collision(glm::vec3 position, glm::vec3 direction) const;
 
-    /// @brief ``True`` of tje ray build from the two vectors collides with the cube's bounding box.
+    /// @brief ``True`` of the ray build from the two vectors collides with the cube's bounding box.
+    /// @param box_bounds An array of two vectors which represent the edges of the bounding box.
     /// @param position The start position vector of the ray.
     /// @param direction The direction vector of the ray.
     /// @return ``True`` if the ray collides with the octree cube's bounding box.

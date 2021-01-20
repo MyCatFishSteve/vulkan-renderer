@@ -35,11 +35,7 @@ bool OctreeCollision::ray_sphere_collision(const glm::vec3 position, const glm::
 bool OctreeCollision::ray_box_collision(const std::array<glm::vec3, 2> box_bounds, const glm::vec3 position,
                                         const glm::vec3 direction) const {
     glm::vec3 inverse_dir{1 / direction.x, 1 / direction.y, 1 / direction.z};
-    std::int32_t sign[3]{0, 0, 0};
-
-    sign[0] = (inverse_dir.x < 0);
-    sign[1] = (inverse_dir.y < 0);
-    sign[2] = (inverse_dir.z < 0);
+    std::int32_t sign[3]{inverse_dir.x < 0, inverse_dir.y < 0, inverse_dir.z < 0};
 
     float tmin, tmax, tymin, tymax, tzmin, tzmax;
 
@@ -63,12 +59,6 @@ bool OctreeCollision::ray_box_collision(const std::array<glm::vec3, 2> box_bound
 
     if ((tmin > tzmax) || (tzmin > tmax)) {
         return false;
-    }
-    if (tzmin > tmin) {
-        tmin = tzmin;
-    }
-    if (tzmax < tmax) {
-        tmax = tzmax;
     }
 
     return true;
