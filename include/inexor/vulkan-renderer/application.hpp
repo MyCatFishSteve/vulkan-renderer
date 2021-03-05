@@ -36,8 +36,7 @@ class Application : public VulkanRenderer {
 
     // Let's just create 2 worlds for testing now.
     // TODO: Remove this again.
-    std::shared_ptr<world::Cube> m_world1;
-    std::shared_ptr<world::Cube> m_world2;
+    std::array<std::shared_ptr<world::Cube>, 3> m_worlds;
 
     // If the user specified command line argument "--stop-on-validation-message", the program will call std::abort();
     // after reporting a validation layer (error) message.
