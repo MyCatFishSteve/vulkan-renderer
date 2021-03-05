@@ -197,15 +197,15 @@ void Application::load_octree_geometry() {
 
     // Let's just create 2 worlds for testing now.
     // TODO: Remove this again.
-    m_worlds[0] = std::make_shared<world::Cube>(world::Cube::Type::OCTANT, 2.0f, glm::vec3{0, -1, -1});
+    m_worlds[0] = std::make_shared<world::Cube>(world::Cube::Type::OCTANT, 3.0f, glm::vec3{0, -1, -1});
 
     // Create the second octree in another place so we don't have to deal with intersections yet.
     // Create the second octree as a completely filled cube so we can test the easiest colliion case.
-    m_worlds[1] = std::make_shared<world::Cube>(world::Cube::Type::SOLID, 2.0f, glm::vec3{0, -5, -1});
+    m_worlds[1] = std::make_shared<world::Cube>(world::Cube::Type::SOLID, 0.8f, glm::vec3{0, -5, -1});
 
     // Create the second octree in another place so we don't have to deal with intersections yet.
     // Create the second octree as a completely filled cube so we can test the easiest colliion case.
-    m_worlds[2] = std::make_shared<world::Cube>(world::Cube::Type::OCTANT, 2.0f, glm::vec3{0, -10, -1});
+    m_worlds[2] = std::make_shared<world::Cube>(world::Cube::Type::OCTANT, 1.5f, glm::vec3{0, -10, -1});
 
     m_worlds[0]->childs()[3]->set_type(world::Cube::Type::EMPTY);
     m_worlds[0]->childs()[5]->set_type(world::Cube::Type::EMPTY);
@@ -222,6 +222,30 @@ void Application::load_octree_geometry() {
                         static_cast<float>(rand()) / static_cast<float>(RAND_MAX),
                     };
                     m_octree_vertices.emplace_back(vertex, color);
+                }
+            }
+        }
+    }
+
+    helper_box_positions.reserve(2 * sizeof(m_worlds));
+
+    for (const auto &world : m_worlds) {
+        const auto bbox = world->bounding_box();
+        helper_box_positions.emplace_back(bbox[0]);
+        helper_box_positions.emplace_back(bbox[1]);
+    }
+
+    for (const auto &helper_box_pos : helper_box_positions) {
+        auto new_help_box = std::make_shared<world::Cube>(world::Cube::Type::SOLID, 0.1f, helper_box_pos);
+        m_helper_box.push_back(new_help_box);
+    }
+
+    for (const auto &helper_box : m_helper_box) {
+        for (const auto &polygons : helper_box->polygons(true)) {
+            for (const auto &triangle : *polygons) {
+                for (const auto &vertex : triangle) {
+                    glm::vec3 red_color = {1.0f, 0.0f, 0.0f};
+                    m_octree_vertices.emplace_back(vertex, red_color);
                 }
             }
         }
