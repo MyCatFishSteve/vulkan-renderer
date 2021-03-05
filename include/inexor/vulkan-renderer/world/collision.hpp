@@ -53,6 +53,7 @@ private:
     [[nodiscard]] bool ray_sphere_collision(glm::vec3 position, glm::vec3 direction) const;
 
     /// @brief ``True`` of the ray build from the two vectors collides with the cube's bounding box.
+    /// @note There is no such function as glm::intersectRayBox.
     /// @param box_bounds An array of two vectors which represent the edges of the bounding box.
     /// @param position The start position vector of the ray.
     /// @param direction The direction vector of the ray.

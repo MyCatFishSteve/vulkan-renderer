@@ -195,14 +195,34 @@ void Application::load_shaders() {
 void Application::load_octree_geometry() {
     spdlog::debug("Creating octree geometry.");
 
-    m_world = std::make_shared<world::Cube>(world::Cube::Type::OCTANT, 2.0f, glm::vec3{0, -1, -1});
+    // Let's just create 2 worlds for testing now.
+    // TODO: Remove this again.
+    m_world1 = std::make_shared<world::Cube>(world::Cube::Type::OCTANT, 2.0f, glm::vec3{0, -1, -1});
 
-    m_world->childs()[3]->set_type(world::Cube::Type::EMPTY);
-    m_world->childs()[5]->set_type(world::Cube::Type::EMPTY);
-    m_world->childs()[6]->set_type(world::Cube::Type::EMPTY);
-    m_world->childs()[7]->set_type(world::Cube::Type::EMPTY);
+    // Create the second octree in another place so we don't have to deal with intersections yet.
+    // Create the second octree as a completely filled cube so we can test the easiest colliion case.
+    m_world2 = std::make_shared<world::Cube>(world::Cube::Type::OCTANT, 2.0f, glm::vec3{0, -10, -1});
 
-    for (const auto &polygons : m_world->polygons(true)) {
+    m_world1->childs()[3]->set_type(world::Cube::Type::EMPTY);
+    m_world1->childs()[5]->set_type(world::Cube::Type::EMPTY);
+    m_world1->childs()[6]->set_type(world::Cube::Type::EMPTY);
+    m_world1->childs()[7]->set_type(world::Cube::Type::EMPTY);
+
+    for (const auto &polygons : m_world1->polygons(true)) {
+        for (const auto &triangle : *polygons) {
+            for (const auto &vertex : triangle) {
+                glm::vec3 color = {
+                    static_cast<float>(rand()) / static_cast<float>(RAND_MAX),
+                    static_cast<float>(rand()) / static_cast<float>(RAND_MAX),
+                    static_cast<float>(rand()) / static_cast<float>(RAND_MAX),
+                };
+                m_octree_vertices.emplace_back(vertex, color);
+            }
+        }
+    }
+
+    // Add the polygons of the 2. octree as well.
+    for (const auto &polygons : m_world2->polygons(true)) {
         for (const auto &triangle : *polygons) {
             for (const auto &vertex : triangle) {
                 glm::vec3 color = {
@@ -575,7 +595,8 @@ void Application::process_mouse_input() {
 void Application::run() {
     spdlog::debug("Running Application.");
 
-    world::OctreeCollision collision_test(m_world);
+    world::OctreeCollision collision_test1(m_world1);
+    world::OctreeCollision collision_test2(m_world2);
 
     while (!m_window->should_close()) {
         m_window->poll();
@@ -585,7 +606,7 @@ void Application::run() {
         process_mouse_input();
         m_camera->update(m_time_passed);
         m_time_passed = m_stopwatch.time_step();
-        collision_test.check_for_collision(m_camera->position(), m_camera->front());
+        collision_test1.check_for_collision(m_camera->position(), m_camera->front());
     }
 }
 

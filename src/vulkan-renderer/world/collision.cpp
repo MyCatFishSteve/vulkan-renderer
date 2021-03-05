@@ -85,6 +85,7 @@ void OctreeCollision::sort_hits(const glm::vec3 position) {
     }
 
     // TODO: Search for the lowest squared distance.
+    // TODO: Make sure the collision of nearest distance is in front of the camera.
     // TODO: Return sorted collisions.
 }
 
@@ -113,7 +114,6 @@ std::optional<CollisionData> OctreeCollision::check_for_collision(const glm::vec
                         OctreeCollision subcollision(subcubes[i]);
                         const auto collision_result = subcollision.check_for_collision(position, direction);
                         if (collision_result) {
-                            spdlog::debug("Collided with subcube no {}.", i);
                             add_hit(collision_result.value());
                             // TODO: Check how many hits could be found at most (less than 8) and abort the loop.
                         }
@@ -123,6 +123,8 @@ std::optional<CollisionData> OctreeCollision::check_for_collision(const glm::vec
                 if (m_hits_found > 1) {
                     sort_hits(position);
                 }
+
+                // TODO: Return collision.
             }
         }
     }
