@@ -49,6 +49,7 @@ protected:
 
     std::uint32_t m_window_width{0};
     std::uint32_t m_window_height{0};
+    wrapper::Window::WindowMode m_window_mode{wrapper::Window::WindowMode::eWindowed};
 
     std::string m_window_title;
 

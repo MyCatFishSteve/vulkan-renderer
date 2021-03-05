@@ -7,8 +7,8 @@
 namespace inexor::vulkan_renderer::wrapper {
 
 Window::Window(const std::string &title, const std::uint32_t width, const std::uint32_t height, const bool visible,
-               const bool resizable)
-    : m_width(width), m_height(height) {
+               const bool resizable, const WindowMode window_mode)
+    : m_width(width), m_height(height), m_window_mode(window_mode) {
     assert(!title.empty());
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -17,14 +17,26 @@ Window::Window(const std::string &title, const std::uint32_t width, const std::u
 
     spdlog::debug("Creating window.");
 
-    m_window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
+    GLFWmonitor *monitor = nullptr;
+    if (m_window_mode != WindowMode::eWindowed) {
+        monitor = glfwGetPrimaryMonitor();
+        if (m_window_mode == WindowMode::eWindowedFullscreen) {
+            auto mode = glfwGetVideoMode(monitor);
+            m_width = mode->width;
+            m_height = mode->height;
+        }
+    }
+
+    m_window = glfwCreateWindow(m_width, m_height, title.c_str(), monitor, nullptr);
 
     if (!m_window) {
         throw std::runtime_error("Error: glfwCreateWindow failed for window " + title + " !");
     }
 }
 
-Window::Window(Window &&other) noexcept : m_window(std::exchange(other.m_window, nullptr)) {}
+Window::Window(Window &&other) noexcept
+    : m_window(std::exchange(other.m_window, nullptr)), m_width(std::exchange(other.m_width, 0)),
+      m_height(std::exchange(other.m_height, 0)), m_window_mode(other.m_window_mode) {}
 
 void Window::wait_for_focus() {
     int current_width = 0;
