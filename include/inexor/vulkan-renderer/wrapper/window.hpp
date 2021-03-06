@@ -17,7 +17,7 @@ private:
     GLFWwindow *m_window;
     std::uint32_t m_width;
     std::uint32_t m_height;
-    WindowMode m_window_mode;
+    Mode m_mode;
 
 public:
     /// @brief Default constructor.
@@ -27,7 +27,7 @@ public:
     /// @param visible True if the window is visible after creation, false otherwise.
     /// @param resizable True if the window should be resizable, false otherwise.
     Window(const std::string &title, std::uint32_t width, std::uint32_t height, bool visible, bool resizable,
-           WindowMode window_mode);
+           Mode mode);
     Window(const Window &) = delete;
     Window(Window &&) noexcept;
     ~Window();
@@ -90,6 +90,10 @@ public:
 
     [[nodiscard]] int height() const {
         return m_height;
+    }
+
+    [[nodiscard]] Mode mode() const {
+        return m_mode;
     }
 };
 
