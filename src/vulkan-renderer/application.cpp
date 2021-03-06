@@ -72,11 +72,11 @@ void Application::load_toml_configuration_file(const std::string &file_name) {
 
     using WindowMode = ::inexor::vulkan_renderer::wrapper::Window::Mode;
     const auto &wmodestr = toml::find<std::string>(renderer_configuration, "application", "window", "mode");
-    if (!wmodestr.compare("windowed")) {
+    if (wmodestr == "windowed") {
         m_window_mode = WindowMode::WINDOWED;
-    } else if (!wmodestr.compare("windowedfullscreen")) {
+    } else if (wmodestr == "windowed_fullscreen") {
         m_window_mode = WindowMode::WINDOWED_FULLSCREEN;
-    } else if (!wmodestr.compare("fullscreen")) {
+    } else if (wmodestr == "fullscreen") {
         m_window_mode = WindowMode::FULLSCREEN;
     } else {
         spdlog::warn("Invalid application window mode: {}", wmodestr);
