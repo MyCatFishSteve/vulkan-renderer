@@ -17,7 +17,7 @@ private:
     GLFWwindow *m_window{nullptr};
     std::uint32_t m_width{0};
     std::uint32_t m_height{0};
-    Mode m_mode{WINDOWED};
+    Mode m_mode{Mode::WINDOWED};
 
 public:
     /// @brief Default constructor.
