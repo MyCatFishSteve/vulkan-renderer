@@ -14,10 +14,10 @@ public:
     enum class Mode { WINDOWED, FULLSCREEN, WINDOWED_FULLSCREEN };
 
 private:
-    GLFWwindow *m_window;
-    std::uint32_t m_width;
-    std::uint32_t m_height;
-    Mode m_mode;
+    GLFWwindow *m_window{nullptr};
+    std::uint32_t m_width{0};
+    std::uint32_t m_height{0};
+    Mode m_mode{WINDOWED};
 
 public:
     /// @brief Default constructor.
